@@ -15,7 +15,7 @@ class Router:
 
     def __call__(self, *args, **kwargs):
         for route in self.route:
-            if route.point == kwargs['point']:
+            if route.point == kwargs['agg']:
                 return route.handle(*args, **kwargs)
 
     def add_route(self, point, func, **kwargs):

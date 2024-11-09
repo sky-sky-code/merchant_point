@@ -16,7 +16,7 @@ class Controller:
         self.app = app
 
     def __call__(self, *args, **kwargs):
-        self.app(point=self.parse_args.point,
+        self.app(agg=self.parse_args.point,
                  sex=self.parse_args.sex,
                  age=self.parse_args.age,
                  year=self.parse_args.year,
