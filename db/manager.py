@@ -19,3 +19,13 @@ class PoolManager:
         self._pool.putconn(self._connection)
         self._pool.closeall()
         self._connection = None
+
+
+pool_manager = PoolManager(
+    1, 2,
+    user='dev',
+    password='dev',
+    host='127.0.0.1',
+    port='5432',
+    database='merchant_point'
+)

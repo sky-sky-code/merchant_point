@@ -1,7 +1,6 @@
-from db.manager import PoolManager
+from db.manager import pool_manager
 
-with PoolManager(1, 2, user='dev', password='dev', host='127.0.0.1', port='5432',
-                 database='merchant_point') as connection:
+with pool_manager as connection:
     cursor = connection.cursor()
     cursor.execute("""
             DO $$
@@ -34,7 +33,7 @@ with PoolManager(1, 2, user='dev', password='dev', host='127.0.0.1', port='5432'
                 transaction_attm integer
             );
             Create table IF NOT EXISTS agg_table(
-                uid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                uid UUID PRIMARY KEY DEFAULT gen_random_uuid()
             );
         """)
     connection.commit()

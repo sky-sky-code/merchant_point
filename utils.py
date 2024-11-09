@@ -24,7 +24,7 @@ def randlatlon1():
 
 
 def random_date():
-    delta = datetime.today() - datetime(year=2023, month=1, day=1)
+    delta = datetime.today() - datetime(year=2020, month=1, day=1)
     int_delta = (delta.days * 24 * 60 * 60) + delta.seconds
     random_second = randrange(int_delta)
-    return datetime(year=2023, month=1, day=1) + timedelta(seconds=random_second)
+    return datetime(year=2020, month=1, day=1) + timedelta(seconds=random_second)

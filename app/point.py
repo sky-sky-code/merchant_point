@@ -1,14 +1,5 @@
-from db.manager import PoolManager
+from db.manager import pool_manager
 import argparse
-
-pool = PoolManager(
-    1, 2,
-    user='dev',
-    password='dev',
-    host='127.0.0.1',
-    port='5432',
-    database='merchant_point'
-)
 
 
 def generate_filter_sql(**kwargs):
@@ -57,7 +48,7 @@ if __name__ == '__main__':
     aggregate_name_column = '_'.join(aggregate_name_column)
     sql_filter = "where " + generate_filter_sql(**arguments) if generate_filter_sql(**arguments) != '' else ""
 
-    with pool as connection:
+    with pool_manager as connection:
         cursor = connection.cursor()
         cursor.execute(f"""select column_name from information_schema.columns 
                            where table_name = 'agg_table' and column_name = '{aggregate_name_column.lower()}'""")

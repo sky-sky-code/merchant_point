@@ -1,6 +1,9 @@
 from utils import randlatlon1, random_date
 import json
 import random
+import argparse
+
+from db.manager import pool_manager
 
 
 class InitData:
@@ -44,3 +47,14 @@ class InitData:
                 to_timestamp('{random_date()}', 'YYYY-MM-DD hh24:mi:ss')::timestamp,{random.choice([i for i in range(1000, 10000)])})
                 """)
             connection.commit()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--clients', type=int, default=100, help='Number of clients')
+    parser.add_argument('-m', '--merchant', type=int, default=300, help='Number of clients')
+    parser.add_argument('-t', '--transactions', type=int, default=1000, help='Number of clients')
+
+    args = parser.parse_args()
+    init_data = InitData(pool_manager, args.clients, args.merchant, args.transactions)
+    init_data.generate()
