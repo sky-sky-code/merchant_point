@@ -1,6 +1,5 @@
 from db.manager import PoolManager
-from controller import Controller
-from routing import App
+import argparse
 
 pool = PoolManager(
     1, 2,
@@ -10,8 +9,6 @@ pool = PoolManager(
     port='5432',
     database='merchant_point'
 )
-
-app = App()
 
 
 def generate_filter_sql(**kwargs):
@@ -35,14 +32,31 @@ def generate_filter_sql(**kwargs):
     return ' and '.join(sql_filter)
 
 
-@app.route('sum')
-def sum_transaction(**kwargs):
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('agg')
+    parser.add_argument('-s', "--sex", help='Введите пол')
+    parser.add_argument('-a', "--age", help='Введите возраст')
+    parser.add_argument('-y', "--year", help='Введите год')
+    parser.add_argument('-m', "--month", help='Введите месяц')
+    parser.add_argument('-mc', "--mcc", help='Введите mcc код')
+
+    parse_args = parser.parse_args()
+    arguments = {
+        'agg': parse_args.agg,
+        'sex': parse_args.sex,
+        'age': parse_args.age,
+        'year': parse_args.year,
+        'month': parse_args.month,
+        'mcc': parse_args.mcc
+    }
     aggregate_name_column = []
-    for key in kwargs.keys():
-        if kwargs[key] is not None:
-            aggregate_name_column.append(f'{key}_{kwargs[key]}')
+    for key in arguments.keys():
+        if arguments[key] is not None:
+            aggregate_name_column.append(f'{key}_{arguments[key]}')
     aggregate_name_column = '_'.join(aggregate_name_column)
-    sql_filter = "where " + generate_filter_sql(**kwargs) if generate_filter_sql(**kwargs) != '' else ""
+    sql_filter = "where " + generate_filter_sql(**arguments) if generate_filter_sql(**arguments) != '' else ""
+
     with pool as connection:
         cursor = connection.cursor()
         cursor.execute(f"""select column_name from information_schema.columns 
@@ -51,7 +65,7 @@ def sum_transaction(**kwargs):
         if not exists_column_agg:
             cursor.execute(f"ALTER TABLE agg_table ADD COLUMN {aggregate_name_column} INT NULL")
 
-        cursor.execute(f"""select SUM(transaction_attm)  from transaction
+        cursor.execute(f"""select {parse_args.agg}(transaction_attm)  from transaction
                            JOIN client on transaction.client_id = client.client_id JOIN
                            merchant_point ON transaction.merchant_id = merchant_point.merchant_id {sql_filter}""")
         agg_data = cursor.fetchall()
@@ -64,18 +78,3 @@ def sum_transaction(**kwargs):
                 cursor.execute(
                     f"UPDATE agg_table SET {aggregate_name_column} = {agg_data[0][0]} WHERE uid = '{check_not_empty_table[0][0]}'")
         connection.commit()
-
-
-@app.route('agg')
-def agg_transaction(**kwargs):
-    pass
-
-
-@app.route('count')
-def count_transaction(**kwargs):
-    pass
-
-
-if __name__ == '__main__':
-    cont = Controller(app)
-    cont()
