@@ -1,5 +1,6 @@
 from psycopg2 import pool
 
+
 class PoolManager:
     def __init__(self, *args, **kwargs):
         self.args = args
@@ -18,4 +19,3 @@ class PoolManager:
         self._pool.putconn(self._connection)
         self._pool.closeall()
         self._connection = None
-

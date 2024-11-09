@@ -33,5 +33,8 @@ with PoolManager(1, 2, user='dev', password='dev', host='127.0.0.1', port='5432'
                 transaction_dttm timestamp,
                 transaction_attm integer
             );
+            Create table IF NOT EXISTS agg_table(
+                uid UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            );
         """)
     connection.commit()
