@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "merchant-point"
+version = "0.1.0"
+description = ""
+authors = ["sky-sky-code <saidyllapashaev@mail.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+psycopg2-binary = "^2.9.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
