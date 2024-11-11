@@ -1,11 +1,14 @@
 from db.manager import pool_manager
 import argparse
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 
 def generate_filter_sql(**kwargs):
     sql_filter = []
     if kwargs['sex'] is not None:
-        sql_filter.append(f"client.sex = '{kwargs["sex"]}'")
+        sql_filter.append(f"""client.sex = '{kwargs["sex"]}'""")
     if kwargs['age'] is not None:
         if "-" in kwargs['age']:
             age = kwargs["age"].split("-")
@@ -41,6 +44,10 @@ if __name__ == '__main__':
         'month': parse_args.month,
         'mcc': parse_args.mcc
     }
+    logging.log(logging.INFO,
+       f"Функция аггрeгации: {arguments['agg']} | Фальтрация: "
+       f"{ ' '.join([f'{key}={arguments[key]}' for key in arguments.keys() if key != 'agg' and arguments[key] != None]) }"
+    )
     aggregate_name_column = []
     for key in arguments.keys():
         if arguments[key] is not None:
@@ -52,20 +59,21 @@ if __name__ == '__main__':
         cursor = connection.cursor()
         cursor.execute(f"""select column_name from information_schema.columns 
                            where table_name = 'agg_table' and column_name = '{aggregate_name_column.lower()}'""")
+
         exists_column_agg = cursor.fetchall()
         if not exists_column_agg:
             cursor.execute(f"ALTER TABLE agg_table ADD COLUMN {aggregate_name_column} INT NULL")
+            logging.log(logging.INFO, f"Создание столбца {aggregate_name_column} c значением null")
 
         cursor.execute(f"""select {parse_args.agg}(transaction_attm)  from transaction
                            JOIN client on transaction.client_id = client.client_id JOIN
                            merchant_point ON transaction.merchant_id = merchant_point.merchant_id {sql_filter}""")
         agg_data = cursor.fetchall()
+        logging.log(logging.INFO, f"Обработка данных")
         if agg_data[0][0]:
-            cursor.execute("SELECT uid FROM agg_table")
-            check_not_empty_table = cursor.fetchall()
-            if not check_not_empty_table:
-                cursor.execute(f"INSERT INTO agg_table ({aggregate_name_column}) VALUES ({agg_data[0][0]})")
-            else:
-                cursor.execute(
-                    f"UPDATE agg_table SET {aggregate_name_column} = {agg_data[0][0]} WHERE uid = '{check_not_empty_table[0][0]}'")
+            cursor.execute("SELECT uid FROM agg_table LIMIT 1")
+            uid_agg = cursor.fetchall()
+            cursor.execute(
+                f"UPDATE agg_table SET {aggregate_name_column} = {agg_data[0][0]} WHERE uid = '{uid_agg[0][0]}'")
+            logging.log(logging.INFO, f"Вставка данных {agg_data[0][0]} в поле {aggregate_name_column}")
         connection.commit()

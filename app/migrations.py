@@ -1,8 +1,11 @@
 from db.manager import pool_manager
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 with pool_manager as connection:
     cursor = connection.cursor()
-    cursor.execute("""
+    cursor.execute(f"""
             DO $$
             BEGIN
                 IF NOT EXISTS (select * from pg_type where typname = 'gender') THEN
@@ -18,7 +21,6 @@ with pool_manager as connection:
                 mcc_cd integer
             );
             
-            
             CREATE TABLE IF NOT EXISTS client(
                 client_id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
                 sex gender,
@@ -32,8 +34,10 @@ with pool_manager as connection:
                 transaction_dttm timestamp,
                 transaction_attm integer
             );
+            
             Create table IF NOT EXISTS agg_table(
                 uid UUID PRIMARY KEY DEFAULT gen_random_uuid()
             );
         """)
     connection.commit()
+    logging.log(logging.INFO, "Migrations commit OK")

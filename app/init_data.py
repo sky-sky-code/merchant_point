@@ -4,6 +4,8 @@ import random
 import argparse
 
 from db.manager import pool_manager
+import logging
+logging.basicConfig(level=logging.INFO)
 
 
 class InitData:
@@ -27,6 +29,8 @@ class InitData:
                     end loop;
             END;$$;
             """)
+            logging.log(logging.INFO, "Init data client OK")
+
             connection.commit()
             for i in range(self.merchant):
                 lat, lon = randlatlon1()
@@ -35,6 +39,7 @@ class InitData:
                 cursor.execute(f"""
                 INSERT INTO merchant_point (merchant_id, latitude, longtitude, mcc_cd) 
                 VALUES (gen_random_uuid(), {lat}, {lon},{mcc_cds[random.choice([i for i in range(len(mcc_cds))])]['mcc']})""")
+            logging.log(logging.INFO, "Init data merchant_point OK")
             cursor.execute('SELECT client_id FROM client')
             client_ids = cursor.fetchall()
             cursor.execute('SELECT merchant_id FROM merchant_point')
@@ -46,7 +51,11 @@ class InitData:
                 '{merchant_ids[random.choice([i for i in range(len(merchant_ids))])][0]}'::uuid,
                 to_timestamp('{random_date()}', 'YYYY-MM-DD hh24:mi:ss')::timestamp,{random.choice([i for i in range(1000, 10000)])})
                 """)
+            logging.log(logging.INFO, "Init data transaction OK")
+            cursor.execute("INSERT INTO agg_table (uid) VALUES (gen_random_uuid())")
+            logging.log(logging.INFO, "Init data agg_table OK")
             connection.commit()
+            logging.log(logging.INFO, "Init data COMMIT ")
 
 
 if __name__ == '__main__':
