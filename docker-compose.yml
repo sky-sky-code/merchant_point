@@ -1,0 +1,76 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres
+    restart: always
+    container_name: db
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - mynetwork
+
+
+  nifi:
+    cap_add:
+      - NET_ADMIN # low port bindings
+    image: apache/nifi:1.28.0
+    container_name: nifi
+    depends_on:
+      - db
+    environment:
+      SINGLE_USER_CREDENTIALS_USERNAME: "admin"
+      SINGLE_USER_CREDENTIALS_PASSWORD: "admin"
+      NIFI_WEB_HTTP_PORT: "8080"
+      NIFI_WEB_HTTP_HOST: "0.0.0.0"
+    ports:
+      - "8080:8080/tcp" # HTTP interface
+      - "8086:8086/tcp" # ListenPort
+      - "8443:8443/tcp" # HTTPS interface
+      - "514:514/tcp" # Syslog
+      - "514:514/udp" # Syslog
+      - "2055:2055/udp" # NetFlow
+    volumes:
+      - nifi_state:/opt/nifi/nifi-current/state
+      - nifi_db:/opt/nifi/nifi-current/database_repository
+      - nifi_flowfile:/opt/nifi/nifi-current/flowfile_repository
+      - nifi_content:/opt/nifi/nifi-current/content_repository
+      - nifi_provenance:/opt/nifi/nifi-current/provenance_repository
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - mynetwork
+
+  minio:
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9001"
+    depends_on:
+      - nifi
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      NIFI_HOST: nifi
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - mynetwork
+
+
+volumes:
+  nifi_state:
+  nifi_db:
+  nifi_flowfile:
+  nifi_content:
+  nifi_provenance:
+
+networks:
+  mynetwork:
+    driver: bridge
