@@ -1,9 +1,9 @@
-from utils import randlatlon1, random_date
+from merchant.utils import randlatlon1, random_date
 import json
 import random
 import argparse
 
-from db.manager import pool_manager
+from merchant.db.manager import pool_manager
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -34,7 +34,7 @@ class InitData:
             connection.commit()
             for i in range(self.merchant):
                 lat, lon = randlatlon1()
-                with open('C:\\Users\\Admin\\PycharmProjects\\merchant_point\\src\\mcc_codes.json', 'r') as json_mcc:
+                with open('/src/mcc_codes.json', 'r') as json_mcc:
                     mcc_cds = json.loads(json_mcc.read())
                 cursor.execute(f"""
                 INSERT INTO merchant_point (merchant_id, latitude, longtitude, mcc_cd) 

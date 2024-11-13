@@ -1,4 +1,4 @@
-from db.manager import pool_manager
+from merchant.db.manager import pool_manager
 import argparse
 import logging
 

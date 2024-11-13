@@ -1,6 +1,7 @@
 version: '3.7'
 
 services:
+
   db:
     image: postgres
     restart: always
@@ -10,7 +11,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     networks:
@@ -42,6 +43,7 @@ services:
       - nifi_flowfile:/opt/nifi/nifi-current/flowfile_repository
       - nifi_content:/opt/nifi/nifi-current/content_repository
       - nifi_provenance:/opt/nifi/nifi-current/provenance_repository
+      - ./src/driver:/postgres
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -62,6 +64,7 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - mynetwork
+
 
 
 volumes:
