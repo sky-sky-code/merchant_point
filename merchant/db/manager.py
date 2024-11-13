@@ -1,4 +1,5 @@
 from psycopg2 import pool
+from merchant.settings import POSTGRES_HOST, POSTGRES_USER, POSTGRES_DATABASE, POSTGRES_PASSWORD, POSTGRES_PORT
 
 
 class PoolManager:
@@ -23,9 +24,9 @@ class PoolManager:
 
 pool_manager = PoolManager(
     1, 2,
-    user='dev',
-    password='dev',
-    host='127.0.0.1',
-    port='5432',
-    database='merchant_point'
+    user=POSTGRES_USER,
+    password=POSTGRES_PASSWORD,
+    host=POSTGRES_HOST,
+    port=POSTGRES_PORT,
+    database=POSTGRES_DATABASE
 )
