@@ -10,9 +10,8 @@ def generate_filter_sql(**kwargs):
     if kwargs['sex'] is not None:
         sql_filter.append(f"""client.sex = '{kwargs["sex"]}'""")
     if kwargs['age'] is not None:
-        if "-" in kwargs['age']:
-            age = kwargs["age"].split("-")
-            sql_filter.append(f'client.age <= {age[0]} <= client.age {age[1]}')
+        if 19 <= kwargs['age'] <= 30:
+            sql_filter.append(f'client.age >= {19} and client.age <= {30}')
         elif int(kwargs['age']) >= 31:
             sql_filter.append(f'client.age >= {kwargs["age"]}')
         else:
@@ -30,7 +29,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('agg')
     parser.add_argument('-s', "--sex", help='Введите пол')
-    parser.add_argument('-a', "--age", help='Введите возраст')
+    parser.add_argument('-a', "--age", type=int, help='Введите возраст')
     parser.add_argument('-y', "--year", help='Введите год')
     parser.add_argument('-m', "--month", help='Введите месяц')
     parser.add_argument('-mc', "--mcc", help='Введите mcc код')
@@ -51,7 +50,11 @@ if __name__ == '__main__':
     aggregate_name_column = []
     for key in arguments.keys():
         if arguments[key] is not None:
-            aggregate_name_column.append(f'{key}_{arguments[key]}')
+            if key == 'age' and 19 <= arguments['age'] <= 30:
+                aggregate_name_column.append(f'{key}_{19}_{30}')
+            else:
+                aggregate_name_column.append(f'{key}_{arguments[key]}')
+
     aggregate_name_column = '_'.join(aggregate_name_column)
     sql_filter = "where " + generate_filter_sql(**arguments) if generate_filter_sql(**arguments) != '' else ""
 
