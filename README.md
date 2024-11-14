@@ -65,6 +65,10 @@ Table agg_table
 - -m: месяц
 - -mc: код торговой точки
 
+## Dump
+
+Для проверки данных dump находится ./merchant/src/dump.sql
+
 
 
 
