@@ -1,7 +1,0 @@
-mc mb local/source
-
-mc admin config set local notify_webhook:nifi endpoint=http://nifi:8086
-
-mc admin service restart local
-
-mc event add myminio/source arn:minio:sqs::nifi:webhook --event put
