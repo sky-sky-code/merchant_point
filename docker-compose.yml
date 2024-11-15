@@ -17,7 +17,6 @@ services:
     networks:
       - mynetwork
 
-
   nifi:
     cap_add:
       - NET_ADMIN # low port bindings
@@ -64,8 +63,6 @@ services:
       - "host.docker.internal:host-gateway"
     networks:
       - mynetwork
-
-
 
 volumes:
   nifi_state:
