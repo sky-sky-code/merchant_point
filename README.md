@@ -78,10 +78,6 @@ Table agg_table
 3. загрузить в nifi конфигурацию .src/template2.xml
 
 # MINIO
-Настройка базы
-1. Создайте базу merchant_point по localhost:5433
-2. Создайте таблицу client пример DDL в migrations.py
-
 
 Настройка minio
 1. загрузите клиент minio https://min.io/docs/minio/windows/index.html
